@@ -18,11 +18,10 @@ def process_file(file_name)
 
 	begin
 		IO.foreach(file_name) do |line|
-			# do something for each line
-            # 1. cleanup_title(line)
-            # 2. Ensure there are no non-english characters
-            # 3. Convert all characters to lower case
-            cleanup_title(line)
+            # 0. cleanup_title(line)
+            cleaned_title = cleanup_title(line)
+            # 1. Remove all titles with non-English characters
+            
 		end
 
 		puts "Finished. Bigram model built.\n"
@@ -33,11 +32,32 @@ def process_file(file_name)
 end
 
 def cleanup_title(dirty_string)
-    # 0. Split on <SEP> *DONE*
-    # 1. Remove all things following (following meaning until you hit a space?) these characters:  (  [  {  \  /  _  -  :  "  `  +  =  *  feat.
-    # 2. Delete the following punctuation marks globally:  ?  ¿  !  ¡  .  ;  &  @  %  #  |
-    p song_title = dirty_string.split('<SEP>', 4).last
-    
+    begin
+    # 0. Split on <SEP>
+    song_title = dirty_string.split('<SEP>', 4).last
+    # 1. Remove \n
+    song_title = song_title.tr("\n", "")
+    # 2. Convert all characters to lower case
+    song_title = song_title.downcase
+    # 3. Remove all things following these characters:  (  [  {  \  /  _  -  :  "  `  +  =  *  feat.
+    p song_title = song_title.sub(/\(.+|\[.+|\{.+|\\.+|\/.+|\_.+|\-.+|\:.+|\".+|\`.+|\+.+|\=.+|\*.+|(feat.).+/, '')
+    # 4. Delete the following punctuation marks globally:  ?  ¿  !  ¡  .  ;  &  @  %  #  |
+    song_title = song_title.sub(/\?|\¿|\!|\¡|\.|\;|\&|\@|\%|\#|\|/, '')
+    # 5. Filter Out Titles that contain non-English characters
+    # For every character in the title
+    for i in 0..song_title.length
+        # If the current character is English
+        if(/[A-Za-z0-9]/.match(song_title))
+            # Continue checking characters
+        else
+            # Else break the loop and return nothing
+        end-
+            song_title
+    end
+    rescue => exception
+        p exception.backtrace
+        raise
+    end
 end
 
 # Executes the program
